@@ -1,0 +1,1764 @@
+---
+title: "Source Data"
+subtitle: "Kefir concepts – in depth characterisation of the core microbiomes and functional potential of milk and water kefir microbiomes"
+author: "Raffaele Magliulo, Giulia Bisson, Kate O’Mahony, Paul D. Cotter"
+date: today
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    embed-resources: true
+    code-fold: true
+execute:
+  warning: false   # suppress warnings globally
+  message: false   # suppress messages globally
+  echo: true       # to show or not to show code in the report (default: true)
+  eval: true       # actually run the code (default: true)
+  cache: false     # cache chunk results to speed up re-rendering
+--- 
+
+## Fig. 1A
+```{r}
+
+world <- giscoR::gisco_get_countries(resolution = "10")
+
+metadata <- metadata %>% 
+  mutate(Origin = recode(Geographical_origin,
+                         "USA"                    = "United States",
+                         "UK"                     = "United Kingdom",
+                         "USA"                    = "United States",
+                         "South_Africa"           = "South Africa",
+                         "New_Zealand"            = "New Zealand",
+                         "Bosnia_and_Herzegovina" = "Bosnia and Herzegovina",
+                         "HongKong_China"         = "Hong Kong"))
+
+meta_counts <- metadata %>%
+  group_by(Origin) %>%
+  summarise(n = n(), .groups = "drop")
+
+world_meta <- world %>%
+  left_join(meta_counts, by = c("NAME_ENGL" = "Origin"))
+
+map_plot <- ggplot(world_meta) +
+  geom_sf(aes(fill = n)) +
+  scale_fill_viridis_c(na.value = "grey90") +
+  theme_classic() +
+  theme(legend.position = "top") +
+  labs(fill = "Sample Count",
+       title = "Countries represented in metadata")
+
+print(map_plot)
+
+bar_plot <- ggplot(meta_counts, aes(x = reorder(Origin, -n), y = n, fill = n)) +
+  geom_col() +
+  labs(x = "", y = "N° of samples", title = "") +
+  scale_fill_viridis_c(na.value = "grey90") +
+  coord_flip() +
+  theme_classic() +
+  theme(axis.text.x    = element_text(angle = 45, hjust = 1),
+        legend.position = "right",
+        legend.title    = element_text(face = "bold"))
+
+print(bar_plot)
+
+```
+
+## Fig. 1B
+```{r}
+
+library(tidyverse)
+library(ggpubr)
+library(patchwork)
+library(gtsummary)
+library(flextable)
+library(writexl)
+library(glue)
+
+metadata <- read.table("../../data/metadata.txt",
+                       header = TRUE,
+                       sep = "\t",
+                       check.names = FALSE,
+                       comment.char = "",
+                       quote = "",
+                       na = ""
+                       ) %>% as.data.frame()
+
+ggpiestats(
+  data         = metadata,
+  x            = Accession,
+  y            = Subtype,
+  title        = "Subtype",
+  legend.title = "Accession"
+)
+
+```
+
+## Fig. 1C
+```{r}
+
+# Load libraries
+library(tidyverse)
+library(ggpubr)
+library(patchwork)
+library(gtsummary)
+library(flextable)
+library(writexl)
+library(glue)
+
+metadata <- read.table("../../data/metadata.txt",
+                       header = TRUE,
+                       sep = "\t",
+                       check.names = FALSE,
+                       comment.char = "",
+                       quote = "",
+                       na = ""
+                       ) %>% as.data.frame()
+
+ggpiestats(
+  data         = metadata,
+  x            = Accession,
+  y            = Liquid_OR_Grain,
+  title        = "Liquid_OR_Grain",
+  legend.title = "Accession"
+)
+
+```
+
+## Fig. 2A
+```{r}
+
+library(tidyverse)
+library(vegan)
+library(ggpubr)
+library(patchwork)
+library(ggsignif)
+library(rstatix)
+library(ggstatsplot)
+library(svglite)
+library(gtsummary)
+library(flextable)
+library(writexl)
+library(glue)
+library(tibble)
+
+alpha_Kefir <- read.table("../../data/alpha_diversity_Kefir.csv",
+                          header = TRUE,
+                          sep = ",",
+                          check.names = FALSE,
+                          comment.char = "",
+                          quote = "",
+                          na = ""
+                          ) %>% as.data.frame()
+
+unique(alpha_Kefir$Subtype)
+Subtype <- c(
+  "Water_kefir" = "steelblue",
+  "Milk_kefir"  = "#FFC857"
+)
+
+# Simpson
+simpson_subtype <- ggbetweenstats(
+  data               = alpha_Kefir,
+  x                  = Subtype,
+  y                  = Simpson,
+  type               = 'nonparametric',
+  test               = 'wilcox.test',
+  
+  # Pairwise comparisons
+  pairwise.comparisons = TRUE,
+  pairwise.annotation  = 'p.value',
+  pairwise.display     = 'all',
+  p.adjust.method      = 'fdr',
+  
+  # Subtitle & descriptives
+  results.subtitle     = TRUE,
+  sample.size.label    = TRUE,
+  mean.plotting        = TRUE,
+  mean.ci              = TRUE,
+  
+  # Boxplot / violin / stats aesthetics
+  centrality.point.args = list(size = 0, color = 'darkred'),
+  centrality.label.args = list(label = NA,
+                               size = 3,
+                               nudge_x = 0.4,
+                               segment.linetype   = 4,
+                               min.segment.length = 0),
+  point.args           = list(position = position_jitterdodge(dodge.width = 0.5),
+                              alpha = 0.75, size = 2, stroke = 0.5, na.rm = TRUE),
+  boxplot.args         = list(width = 0.5, alpha = 0.2, na.rm = TRUE),
+  violin.args          = list(width = 0.5, alpha = 0.1, na.rm = TRUE),
+  ggsignif.args        = list(textsize = 3, tip_length = 0.01, na.rm = TRUE),
+  
+  ggtheme              = theme_ggstatsplot(),
+  package              = 'awtools',
+  palette              = 'bpalette'
+) +
+  scale_color_manual(values = Subtype) +
+  scale_fill_manual(values = Subtype) +
+  theme(
+    axis.ticks         = element_blank(),
+    axis.line          = element_line(colour = 'grey50'),
+    panel.grid         = element_line(color  = '#b4aea9'),
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(linetype = 'dashed')
+  )
+
+# Extract statistics calculated by ggstatsplot
+ggstats <- ggstatsplot::extract_stats(simpson_subtype)
+
+# Extract ggstatsplot p-value
+p_ggstats <- ggstats$subtitle_data$p.value
+
+# Create significance label from ggstatsplot p-value
+p_label <- dplyr::case_when(
+  p_ggstats <= 0.0001 ~ "****",
+  p_ggstats <= 0.001  ~ "***",
+  p_ggstats <= 0.01   ~ "**",
+  p_ggstats <= 0.05   ~ "*",
+  TRUE                ~ "ns"
+)
+
+# Define y-position for bracket
+y_max <- max(alpha_Kefir$Simpson, na.rm = TRUE)
+y_min <- min(alpha_Kefir$Simpson, na.rm = TRUE)
+y_range <- y_max - y_min
+
+# Final plot with ggstatsplot p-value added as bracket annotation
+simpson_subtype_sig <- simpson_subtype +
+  ggsignif::geom_signif(
+    comparisons = list(c("Water_kefir", "Milk_kefir")),
+    annotations = p_label,
+    manual = FALSE,
+    textsize = 3,
+    tip_length = 0.01,
+    y_position = y_max + 0.10 * y_range
+  ) +
+  coord_cartesian(
+    ylim = c(y_min, y_max + 0.25 * y_range),
+    clip = "off"
+  )
+
+simpson_subtype_sig
+
+
+# Shannon
+shannon_subtype <- ggbetweenstats(
+  data               = alpha_Kefir,
+  x                  = Subtype,
+  y                  = Shannon,
+  type               = 'nonparametric',
+  test               = 'wilcox.test',
+  
+  # Pairwise comparisons
+  pairwise.comparisons = TRUE,
+  pairwise.annotation  = 'p.value',
+  pairwise.display     = 'all',
+  p.adjust.method      = 'fdr',
+  
+  # Subtitle & descriptives
+  results.subtitle     = TRUE,
+  sample.size.label    = TRUE,
+  mean.plotting        = TRUE,
+  mean.ci              = TRUE,
+  
+  # Boxplot / violin / stats aesthetics
+  centrality.point.args = list(size = 0, color = 'darkred'),
+  centrality.label.args = list(label = NA,
+                               size = 3,
+                               nudge_x = 0.4,
+                               segment.linetype   = 4,
+                               min.segment.length = 0),
+  point.args           = list(position = position_jitterdodge(dodge.width = 0.5),
+                              alpha = 0.75, size = 2, stroke = 0.5, na.rm = TRUE),
+  boxplot.args         = list(width = 0.5, alpha = 0.2, na.rm = TRUE),
+  violin.args          = list(width = 0.5, alpha = 0.1, na.rm = TRUE),
+  ggsignif.args        = list(textsize = 3, tip_length = 0.01, na.rm = TRUE),
+  
+  ggtheme              = theme_ggstatsplot(),
+  package              = 'awtools',
+  palette              = 'bpalette'
+) +
+  scale_color_manual(values = Subtype) +
+  scale_fill_manual(values = Subtype) +
+  theme(
+    axis.ticks         = element_blank(),
+    axis.line          = element_line(colour = 'grey50'),
+    panel.grid         = element_line(color  = '#b4aea9'),
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(linetype = 'dashed')
+  )
+
+# Extract statistics calculated by ggstatsplot
+ggstats <- ggstatsplot::extract_stats(shannon_subtype)
+
+# Extract ggstatsplot p-value
+p_ggstats <- ggstats$subtitle_data$p.value
+
+# Create significance label from ggstatsplot p-value
+p_label <- dplyr::case_when(
+  p_ggstats <= 0.0001 ~ "****",
+  p_ggstats <= 0.001  ~ "***",
+  p_ggstats <= 0.01   ~ "**",
+  p_ggstats <= 0.05   ~ "*",
+  TRUE                ~ "ns"
+)
+
+# Define y-position for bracket
+y_max <- max(alpha_Kefir$Shannon, na.rm = TRUE)
+y_min <- min(alpha_Kefir$Shannon, na.rm = TRUE)
+y_range <- y_max - y_min
+
+# Final plot with ggstatsplot p-value added as bracket annotation
+shannon_subtype_sig <- shannon_subtype +
+  ggsignif::geom_signif(
+    comparisons = list(c("Water_kefir", "Milk_kefir")),
+    annotations = p_label,
+    manual = FALSE,
+    textsize = 3,
+    tip_length = 0.01,
+    y_position = y_max + 0.10 * y_range
+  ) +
+  coord_cartesian(
+    ylim = c(y_min, y_max + 0.25 * y_range),
+    clip = "off"
+  )
+
+shannon_subtype_sig
+
+
+# Pielou's Evenness
+pielou_subtype <- ggbetweenstats(
+  data               = alpha_Kefir,
+  x                  = Subtype,
+  y                  = Pielou,
+  type               = 'nonparametric',
+  test               = 'wilcox.test',
+  
+  # Pairwise comparisons
+  pairwise.comparisons = TRUE,
+  pairwise.annotation  = 'p.value',
+  pairwise.display     = 'all',
+  p.adjust.method      = 'fdr',
+  
+  # Subtitle & descriptives
+  results.subtitle     = TRUE,
+  sample.size.label    = TRUE,
+  mean.plotting        = TRUE,
+  mean.ci              = TRUE,
+  
+  # Boxplot / violin / stats aesthetics
+  centrality.point.args = list(size = 0, color = 'darkred'),
+  centrality.label.args = list(label = NA,
+                               size = 3,
+                               nudge_x = 0.4,
+                               segment.linetype   = 4,
+                               min.segment.length = 0),
+  point.args           = list(position = position_jitterdodge(dodge.width = 0.5),
+                              alpha = 0.75, size = 2, stroke = 0.5, na.rm = TRUE),
+  boxplot.args         = list(width = 0.5, alpha = 0.2, na.rm = TRUE),
+  violin.args          = list(width = 0.5, alpha = 0.1, na.rm = TRUE),
+  ggsignif.args        = list(textsize = 3, tip_length = 0.01, na.rm = TRUE),
+  
+  ggtheme              = theme_ggstatsplot(),
+  palette              = "awtools::bpalette"
+  ) +
+  scale_color_manual(values = Subtype) +
+  scale_fill_manual(values = Subtype) +
+  theme(
+    axis.ticks         = element_blank(),
+    axis.line          = element_line(colour = 'grey50'),
+    panel.grid         = element_line(color  = '#b4aea9'),
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(linetype = 'dashed')
+  )
+
+# Extract statistics calculated by ggstatsplot
+ggstats <- ggstatsplot::extract_stats(pielou_subtype)
+
+# Extract ggstatsplot p-value
+p_ggstats <- ggstats$subtitle_data$p.value
+
+# Create significance label from ggstatsplot p-value
+p_label <- dplyr::case_when(
+  p_ggstats <= 0.0001 ~ "****",
+  p_ggstats <= 0.001  ~ "***",
+  p_ggstats <= 0.01   ~ "**",
+  p_ggstats <= 0.05   ~ "*",
+  TRUE                ~ "ns"
+)
+
+# Define y-position for bracket
+y_max <- max(alpha_Kefir$Pielou, na.rm = TRUE)
+y_min <- min(alpha_Kefir$Pielou, na.rm = TRUE)
+y_range <- y_max - y_min
+
+# Final plot with ggstatsplot p-value added as bracket annotation
+pielou_subtype_sig <- pielou_subtype +
+  ggsignif::geom_signif(
+    comparisons = list(c("Water_kefir", "Milk_kefir")),
+    annotations = p_label,
+    manual = FALSE,
+    textsize = 3,
+    tip_length = 0.01,
+    y_position = y_max + 0.10 * y_range
+  ) +
+  coord_cartesian(
+    ylim = c(y_min, y_max + 0.25 * y_range),
+    clip = "off"
+  )
+
+pielou_subtype_sig
+
+```
+
+## Fig. 2B
+```{r}
+
+library(tidyverse)
+library(ggpubr)
+library(ggrepel)
+library(grid)
+library(patchwork)
+library(vegan)
+library(ape)
+library(Rtsne)
+
+s_metaKefir <- read.table("s_metaKefir.tsv",
+                      header       = TRUE,
+                      row.names    = 1,
+                      sep          = "\t",
+                      check.names  = FALSE,
+                      dec          = ".",
+                      comment.char = "",
+                      quote        = ""
+                      ) %>% as.data.frame() 
+
+dim(s_metaKefir)
+head(s_metaKefir)
+
+s_metaKefir <- s_metaKefir %>% 
+  filter(Liquid_OR_Grain == "Liquid")
+
+# In this table, species columns start with "s__"
+species_cols <- grep("^s__", colnames(s_metaKefir), value = TRUE)
+
+if (length(species_cols) == 0) {
+  stop("No species columns found. Expected columns starting with 's__'.")
+}
+
+meta_cols <- setdiff(colnames(s_metaKefir), species_cols)
+
+taxa_pcoa <- s_metaKefir[, species_cols, drop = FALSE]
+meta_pcoa <- s_metaKefir[, meta_cols,    drop = FALSE]
+
+cat("Metadata columns: ", length(meta_cols), "\n", sep = "")
+cat("Species columns: ",  length(species_cols), "\n", sep = "")
+
+# Convert species abundance table to numeric matrix
+taxa_pcoa <- taxa_pcoa %>%
+  mutate(across(everything(), ~ suppressWarnings(as.numeric(.x)))) %>%
+  as.data.frame()
+
+rownames(taxa_pcoa) <- rownames(s_metaKefir)
+rownames(meta_pcoa) <- rownames(s_metaKefir)
+
+taxa_pcoa <- as.matrix(taxa_pcoa)
+
+# ------------------------------------------------------------
+# Step 3: Clean abundance table
+# ------------------------------------------------------------
+
+# Replace NA, NaN and Inf values with 0
+non_finite_values <- !is.finite(taxa_pcoa)
+
+if (any(non_finite_values)) {
+  cat("Warning: ", sum(non_finite_values),
+      " non-finite values in taxa table — replacing with 0\n", sep = "")
+  taxa_pcoa[non_finite_values] <- 0
+}
+
+# Diagnostic checks
+cat("NA values in taxa_pcoa: ",  sum(is.na(taxa_pcoa)), "\n",
+    "NaN values in taxa_pcoa: ", sum(is.nan(taxa_pcoa)), "\n",
+    "Inf values in taxa_pcoa: ", sum(is.infinite(taxa_pcoa)), "\n",
+    "Negative values in taxa_pcoa: ", sum(taxa_pcoa < 0, na.rm = TRUE), "\n",
+    sep = "")
+
+if (any(taxa_pcoa < 0, na.rm = TRUE)) {
+  stop("Negative values found in taxa_pcoa. Bray-Curtis requires non-negative abundances.")
+}
+
+# Drop species that are zero across all samples
+nonzero_species <- colSums(taxa_pcoa) > 0
+
+cat("Species retained before sample filtering: ",
+    sum(nonzero_species), " of ", length(nonzero_species), "\n", sep = "")
+
+taxa_pcoa <- taxa_pcoa[, nonzero_species, drop = FALSE]
+
+# Check per-sample row sums
+sample_sums <- rowSums(taxa_pcoa)
+
+cat("Samples with row sum = 0: ", sum(sample_sums == 0), "\n",
+    "Samples with row sum > 0: ", sum(sample_sums > 0), "\n",
+    "Min row sum: ", min(sample_sums), "\n",
+    "Max row sum: ", max(sample_sums), "\n",
+    sep = "")
+
+zero_sum_samples <- rownames(taxa_pcoa)[sample_sums == 0]
+
+if (length(zero_sum_samples) > 0) {
+  cat("\nZero-sum samples removed (", length(zero_sum_samples), "):\n", sep = "")
+  print(zero_sum_samples)
+}
+
+# Drop zero-sum samples
+keep_samples <- sample_sums > 0
+
+cat("\nDropping ", sum(!keep_samples),
+    " zero-sum samples; keeping ", sum(keep_samples), "\n", sep = "")
+
+taxa_pcoa <- taxa_pcoa[keep_samples, , drop = FALSE]
+meta_pcoa <- meta_pcoa[keep_samples, , drop = FALSE]
+
+# Drop species that became zero after sample filtering
+species_keep <- colSums(taxa_pcoa) > 0
+taxa_pcoa   <- taxa_pcoa[, species_keep, drop = FALSE]
+
+cat("After cleanup: ", nrow(taxa_pcoa), " samples × ",
+    ncol(taxa_pcoa), " species\n", sep = "")
+
+if (nrow(taxa_pcoa) < 3) {
+  stop("Fewer than 3 samples remain after filtering. PCoA is not reliable.")
+}
+
+if (ncol(taxa_pcoa) < 2) {
+  stop("Fewer than 2 species remain after filtering. Bray-Curtis PCoA is not useful.")
+}
+
+# ------------------------------------------------------------
+# Step 4: Bray-Curtis distance and PCoA
+# ------------------------------------------------------------
+
+bray_dist <- vegan::vegdist(taxa_pcoa, method = "bray")
+
+n_na  <- sum(is.na(bray_dist))
+n_nan <- sum(is.nan(bray_dist))
+n_inf <- sum(is.infinite(bray_dist))
+
+cat("\nDistance matrix — NA: ", n_na,
+    ", NaN: ", n_nan,
+    ", Inf: ", n_inf, "\n", sep = "")
+
+stopifnot(all(is.finite(as.vector(bray_dist))))
+cat("Distance matrix is clean: all values are finite.\n")
+
+# Run PCoA
+pcoa_result <- ape::pcoa(bray_dist)
+
+# Percent variance explained
+pct_var <- round(pcoa_result$values$Relative_eig * 100, 1)
+
+cat("Variance explained — PC1: ", pct_var[1],
+    "%, PC2: ", pct_var[2], "%\n", sep = "")
+
+# ------------------------------------------------------------
+# Step 5: Build plotting data frame
+# ------------------------------------------------------------
+
+site_scores <- as.data.frame(
+  pcoa_result$vectors[, 1:min(3, ncol(pcoa_result$vectors)), drop = FALSE]
+)
+
+colnames(site_scores) <- paste0("PC", seq_len(ncol(site_scores)))
+
+pcoa_df <- site_scores %>%
+  rownames_to_column("SampleID") %>%
+  left_join(
+    meta_pcoa %>% rownames_to_column("SampleID"),
+    by = "SampleID"
+  )
+
+cat("PCoA data frame: ", nrow(pcoa_df), " samples\n", sep = "")
+
+# ============================================================
+# Step 6: Kefir metadata palettes
+# ============================================================
+
+kefir_palettes <- list(
+  
+  Subtype = c(
+    "Water_kefir" = "steelblue",
+    "Milk_kefir"  = "#FFC857"
+  ),
+  
+  Liquid_OR_Grain = c(
+    "Liquid" = "#E4572E",
+    "Grain"  = "#A8C686"
+  ),
+  
+  Sugar_source = c(
+    "Brown"                   = "#D68C45",
+    "Mix"                     = "#FFC9B9",
+    "White"                   = "#FEFEE3",
+    "Lactose"                 = "#DBD56E",
+    "Lactose?_No_sugar_added" = "#120D31",
+    "NA"                      = "lightgrey"
+  ),
+  
+  Type_of_fermentation = c(
+    "Anaerobe" = "#6A041D",
+    "Aerobe"   = "#A7A5C6",
+    "NA"       = "lightgrey"
+  ),
+  
+  Timepoint = c(
+    "0"  = "#FEF0D9",
+    "2"  = "#FDBB84",
+    "4"  = "#FC8D59",
+    "8"  = "#E34A33",
+    "16" = "#B30000",
+    "24" = "#800000",
+    "48" = "#4B0000",
+    "NA" = "lightgrey"
+  ),
+  
+  Fermentation_duration = c(
+    "8"  = "#A1D99B",
+    "24" = "#41AB5D",
+    "48" = "#006D2C",
+    "72" = "#003311",
+    "NA" = "lightgrey"
+  ),
+  
+  Fermentation_cycle = c(
+    "1"  = "#66C2A5",
+    "2"  = "#FC8D62",
+    "NA" = "lightgrey"
+  ),
+  
+  Temperature = c(
+    "21" = "#5E4FA2",
+    "24" = "#9E0142"
+  ),
+  
+  Private_OR_Commercial = c(
+    "Private"    = "#A3D9FF",
+    "Commercial" = "#F2E94E",
+    "NA"         = "lightgrey"
+  ),
+  
+  Shipping_methods = c(
+    "Fresh" = "#B5C99A",
+    "Dried" = "#862B0D",
+    "NA"    = "lightgrey"
+  ),
+  
+  Geographical_origin = c(
+    "Ireland"                = "#3B6B4F",
+    "UK"                     = "#7A9D8C",
+    "Germany"                = "#D9A066",
+    "Spain"                  = "#C44536",
+    "Italy"                  = "#6A994E",
+    "Denmark"                = "#B5A1C4",
+    "France"                 = "#5B7FA2",
+    "Austria"                = "#A67C52",
+    "USA"                    = "#9B5D73",
+    "Indonesia"              = "#E6A176",
+    "Canada"                 = "#8C5B4B",
+    "Singapore"              = "#4D8C7A",
+    "Australia"              = "#C27E3A",
+    "Estonia"                = "#7A93A8",
+    "Malaysia"               = "#D68C7C",
+    "Norway"                 = "#5D7B93",
+    "South_Africa"           = "#8B5A4A",
+    "Belgium"                = "#A3A380",
+    "Colombia"               = "#B87B6E",
+    "Philippines"            = "#D4A373",
+    "HongKong_China"         = "#6D8B8A",
+    "China"                  = "#B54A4A",
+    "Greece"                 = "#5F8B9E",
+    "Israel"                 = "#C2A77D",
+    "Tunisia"                = "#9B6E55",
+    "Portugal"               = "#A66249",
+    "Taiwan"                 = "#6A8D73",
+    "New_Zealand"            = "#4F6D5C",
+    "Bosnia_and_Herzegovina" = "#8B7D6B",
+    "India"                  = "#CC8F5A",
+    "Russia"                 = "#7B6F8A",
+    "Croatia"                = "#5A8F8F",
+    "Sweden"                 = "#8B9A6B",
+    "NA"                     = "lightgrey"
+  )
+)
+
+# ============================================================
+# Step 7: Helper functions for safe metadata plotting
+# ============================================================
+
+# Convert true missing values to the character level "NA".
+# This is important because your palettes use "NA" = "lightgrey".
+clean_metadata_level <- function(x) {
+  x <- as.character(x)
+  x[is.na(x) | x == "" | x == "NaN" | x == "nan" | x == "<NA>"] <- "NA"
+  x
+}
+
+
+# Build a safe palette for the selected metadata variable.
+# If unexpected levels are present in the data, the function adds colours automatically.
+make_safe_palette <- function(metadata_variable, observed_values, palette_list) {
+  
+  observed_values <- clean_metadata_level(observed_values)
+  observed_levels <- unique(observed_values)
+  
+  if (!metadata_variable %in% names(palette_list)) {
+    
+    warning("No predefined palette found for ", metadata_variable,
+            ". Using automatic colours.")
+    
+    auto_palette <- setNames(
+      scales::hue_pal()(length(observed_levels)),
+      observed_levels
+    )
+    
+    return(auto_palette)
+  }
+  
+  manual_palette <- palette_list[[metadata_variable]]
+  
+  missing_levels <- setdiff(observed_levels, names(manual_palette))
+  
+  if (length(missing_levels) > 0) {
+    
+    warning(
+      "The following levels of ", metadata_variable,
+      " are not present in the manual palette and will receive automatic colours: ",
+      paste(missing_levels, collapse = ", ")
+    )
+    
+    extra_palette <- setNames(
+      scales::hue_pal()(length(missing_levels)),
+      missing_levels
+    )
+    
+    manual_palette <- c(manual_palette, extra_palette)
+  }
+  
+  # Keep only levels that are actually present in the data
+  manual_palette <- manual_palette[names(manual_palette) %in% observed_levels]
+  
+  return(manual_palette)
+}
+
+# ============================================================
+# Step 8: Choose metadata variable for colouring
+# ============================================================
+
+# Change this line depending on the biological question:
+# "Subtype"
+# "Liquid_OR_Grain"
+# "Sugar_source"
+# "Type_of_fermentation"
+# "Timepoint"
+# "Fermentation_duration"
+# "Fermentation_cycle"
+# "Temperature"
+# "Private_OR_Commercial"
+# "Shipping_methods"
+# "Geographical_origin"
+
+plot_colour <- "Subtype"
+
+if (!plot_colour %in% colnames(pcoa_df)) {
+  stop("The selected plot_colour column was not found in pcoa_df: ", plot_colour)
+}
+
+pcoa_df <- pcoa_df %>%
+  mutate(
+    plot_group = clean_metadata_level(.data[[plot_colour]])
+  )
+
+plot_palette <- make_safe_palette(
+  metadata_variable = plot_colour,
+  observed_values   = pcoa_df$plot_group,
+  palette_list      = kefir_palettes
+)
+
+# Keep factor order according to your palette
+pcoa_df$plot_group <- factor(
+  pcoa_df$plot_group,
+  levels = names(plot_palette)
+)
+
+cat("PCoA coloured by: ", plot_colour, "\n", sep = "")
+cat("Groups shown: ", paste(levels(pcoa_df$plot_group), collapse = ", "), "\n", sep = "")
+
+# ============================================================
+# Step 9: PCoA plot with your kefir palette
+# ============================================================
+
+
+fig_pcoa_kefir <- ggplot(
+  pcoa_df,
+  aes(x = PC1, y = PC2, colour = plot_group)
+) +
+  geom_point(
+    size  = 3,
+    alpha = 0.85
+  ) +
+  scale_colour_manual(
+    values = plot_palette,
+    name   = plot_colour,
+    drop   = FALSE
+  ) +
+  coord_fixed() +
+  labs(
+    title = paste0("PCoA — Bray-Curtis at species level, kefir samples by ", plot_colour),
+    x = paste0("PC1 (", pct_var[1], "%)"),
+    y = paste0("PC2 (", pct_var[2], "%)")
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 12, hjust = 0.5),
+    panel.grid      = element_line(colour = "grey94", linewidth = 0.3),
+    legend.position = "right",
+    legend.title    = element_text(face = "bold"),
+    legend.text     = element_text(size = 9)
+  )
+
+fig_pcoa_kefir
+
+ggsave(
+  filename = paste0("figures/pcoa_kefir_bray_", plot_colour, ".svg"),
+  plot     = fig_pcoa_kefir,
+  width    = 10,
+  height   = 8,
+  device   = "svg"
+)
+
+# ============================================================
+# Step 10: Weighted-average species overlay
+# ============================================================
+
+wa_scores <- vegan::wascores(
+  pcoa_result$vectors[, 1:2, drop = FALSE],
+  taxa_pcoa
+) %>%
+  as_tibble(rownames = "species") %>%
+  rename(PC1 = Axis.1, PC2 = Axis.2) %>%
+  mutate(
+    species_label = gsub("^s__", "", species)
+  )
+
+species_of_interest <- c(
+  "Lactococcus_lactis",
+  "Lactococcus_cremoris",
+  "Streptococcus_thermophilus",
+  "Lactobacillus_helveticus",
+  "Lactobacillus_kefiranofaciens",
+  "Lentilactobacillus_kefiri",
+  "Lentilactobacillus_parakefiri",
+  "Leuconostoc_mesenteroides",
+  "Saccharomyces_cerevisiae",
+  "Acetobacter_fabarum",
+  "Acetobacter_orientalis",
+  "Zymomonas_mobilis",
+  "Oenococcus_oeni",
+  "Bifidobacterium_aquikefiri"
+)
+
+wa_subset <- wa_scores %>%
+  filter(species_label %in% species_of_interest)
+
+cat("Species found and labelled: ", nrow(wa_subset), " of ",
+    length(species_of_interest), "\n", sep = "")
+
+if (nrow(wa_subset) < length(species_of_interest)) {
+  cat("Not found: ",
+      paste(setdiff(species_of_interest, wa_subset$species_label),
+            collapse = ", "),
+      "\n", sep = "")
+}
+
+if (requireNamespace("ggrepel", quietly = TRUE)) {
+  
+  fig_pcoa_kefir_species <- fig_pcoa_kefir +
+    ggrepel::geom_text_repel(
+      data = wa_subset,
+      aes(x = PC1, y = PC2, label = species_label),
+      inherit.aes  = FALSE,
+      colour       = "black",
+      fontface     = "italic",
+      size         = 3.5,
+      max.overlaps = Inf
+    )
+  
+} else {
+  
+  fig_pcoa_kefir_species <- fig_pcoa_kefir +
+    geom_text(
+      data = wa_subset,
+      aes(x = PC1, y = PC2, label = species_label),
+      inherit.aes   = FALSE,
+      colour        = "black",
+      fontface      = "italic",
+      size          = 3.5,
+      check_overlap = TRUE
+    )
+}
+
+fig_pcoa_kefir_species
+
+# ---- 1. Compute betadisper ----
+# Reorder metadata to exactly match the sample order in bray_dist.
+meta_for_disp <- meta_pcoa %>%
+  rownames_to_column("SampleID") %>%
+  filter(SampleID %in% labels(bray_dist)) %>%
+  column_to_rownames("SampleID")
+
+meta_for_disp <- meta_for_disp[labels(bray_dist), , drop = FALSE]
+
+# Keep only samples with a valid Subtype (not NA and not an empty string).
+valid_idx <- !is.na(meta_for_disp$Subtype) &
+             meta_for_disp$Subtype != ""
+
+cat(
+  "Samples with valid Subtype: ",
+  sum(valid_idx), " / ", length(valid_idx), "\n",
+  sep = ""
+)
+
+bray_dist_valid <- as.dist(as.matrix(bray_dist)[valid_idx, valid_idx])
+meta_valid      <- meta_for_disp[valid_idx, , drop = FALSE]
+
+bray_disp <- vegan::betadisper(
+  bray_dist_valid,
+  group = meta_valid$Subtype,
+  type  = "median"
+)
+
+# ---- 2. Build the PERMDISP data frame ----
+disp_distances <- bray_disp$distances
+
+permdisp_df_bray <- data.frame(
+  Subtype          = meta_valid$Subtype,
+  DistanceToMedian = disp_distances,
+  row.names        = NULL,
+  stringsAsFactors = FALSE
+)
+
+# Use the existing kefir palette for Subtype.
+subtype_palette <- kefir_palettes[["Subtype"]]
+permdisp_df_bray$color_id <- subtype_palette[permdisp_df_bray$Subtype]
+permdisp_df_bray$color_id[is.na(permdisp_df_bray$color_id)] <- "grey50"
+my_col_individual <- setNames(
+  permdisp_df_bray$color_id,
+  permdisp_df_bray$Subtype
+)
+
+# ---- 3. Pairwise Wilcoxon tests with FDR correction ----
+permdisp_wilcox_df_bray <- permdisp_df_bray %>%
+  filter(
+    !is.na(Subtype),
+    !is.na(DistanceToMedian)
+  ) %>%
+  group_by(Subtype) %>%
+  filter(n() >= 2) %>%
+  ungroup() %>%
+  droplevels()
+
+if (n_distinct(permdisp_wilcox_df_bray$Subtype) >= 2) {
+
+  pairwise_results_bray <- permdisp_wilcox_df_bray %>%
+    rstatix::wilcox_test(DistanceToMedian ~ Subtype) %>%
+    rstatix::adjust_pvalue(method = "fdr") %>%
+    rstatix::add_significance(
+      p.col     = "p.adj",
+      cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 1),
+      symbols   = c("****", "***", "**", "*", "ns")
+    ) %>%
+    filter(p.adj.signif != "ns")
+
+} else {
+
+  pairwise_results_bray <- tibble()
+  cat(
+    "Pairwise Wilcoxon tests skipped: fewer than 2 subtypes ",
+    "with at least 2 observations.\n",
+    sep = ""
+  )
+}
+
+max_y_bray <- max(permdisp_df_bray$DistanceToMedian, na.rm = TRUE)
+
+if (nrow(pairwise_results_bray) > 0) {
+
+  pairwise_results_bray <- pairwise_results_bray %>%
+    mutate(
+      y.position = max_y_bray + row_number() * max_y_bray * 0.06
+    )
+
+  cat(
+    "Significant pairwise Wilcoxon comparisons retained: ",
+    nrow(pairwise_results_bray), "\n",
+    sep = ""
+  )
+
+} else {
+
+  cat("No significant pairwise Wilcoxon comparisons to annotate.\n")
+}
+
+# ---- 4. PERMDISP plot (corrected colour mapping) ----
+# Make Subtype a factor with the order from the palette
+permdisp_df_bray$Subtype <- factor(permdisp_df_bray$Subtype,
+                                   levels = names(subtype_palette))
+
+fig_permdisp_subtype_bray <- ggplot(permdisp_df_bray,
+                                    aes(x = Subtype,
+                                        y = DistanceToMedian,
+                                        colour = Subtype)) +   # <-- map to Subtype, not color_id
+  geom_jitter(width = 0.18,
+              size  = 2,
+              alpha = 0.75) +
+  geom_boxplot(aes(group = Subtype),
+               colour        = 'black',
+               fill          = NA,
+               outlier.shape = NA,
+               linewidth     = 0.5) +
+  scale_color_manual(values = subtype_palette,   # <-- direct use of the palette
+                     name   = 'Subtype') +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.25))) +
+  labs(
+    title = NULL,
+    x     = 'Subtype',
+    y     = 'Dispersion'
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    plot.title    = element_text(face = 'bold', size = 12, hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    axis.text.x   = element_text(angle = 0, hjust = 0.5),
+    panel.grid    = element_line(colour = 'grey94', linewidth = 0.3),
+    legend.position = 'right'
+)
+
+# Add significance brackets (unchanged)
+if (nrow(pairwise_results_bray) > 0) {
+  fig_permdisp_subtype_bray <- fig_permdisp_subtype_bray +
+    stat_pvalue_manual(
+      pairwise_results_bray,
+      label      = 'p.adj.signif',
+      xmin       = 'group1',
+      xmax       = 'group2',
+      y.position = 'y.position',
+      tip.length = 0.01,
+      size       = 4,
+      colour     = 'black',
+      hide.ns    = TRUE
+    )
+}
+
+fig_permdisp_subtype_bray
+
+
+
+```
+
+## Fig. 2C
+```{r}
+
+# ============================================================
+# t‑SNE on Bray‑Curtis distances — reusing the distance matrix
+# ============================================================
+
+# ---- 1. Sanity check for perplexity ----
+n_samp <- attr(bray_dist, "Size")
+cat("Samples for t‑SNE: ", n_samp, "\n", sep = "")
+
+perplexity_val <- 30                 # standard default; valid for n ≥ 91
+max_perp_ok    <- floor((n_samp - 1) / 3)
+
+if (perplexity_val > max_perp_ok) {
+  warning("Perplexity ", perplexity_val,
+          " exceeds Rtsne limit (", max_perp_ok,
+          ") for this n_samp. Lowering automatically.")
+  perplexity_val <- max_perp_ok
+}
+cat("Perplexity: ", perplexity_val, "\n", sep = "")
+
+
+# ---- 2. PCoA initialisation ----
+# Initialising from PCoA coordinates gives reproducible embeddings.
+mds_init <- pcoa_result$vectors[, 1:2]
+
+# Avoid division by zero if all coordinates happen to be zero
+max_abs <- max(abs(mds_init))
+if (max_abs == 0) {
+  warning("PCoA coordinates are all zero — using random initialisation.")
+  mds_init <- NULL
+} else {
+  mds_init <- mds_init / max_abs * 0.0001
+}
+
+
+# ---- 3. Run t‑SNE ----
+set.seed(123)
+tsne_out <- Rtsne(
+  X                = as.matrix(bray_dist),
+  is_distance      = TRUE,
+  perplexity       = perplexity_val,
+  check_duplicates = FALSE,
+  verbose          = TRUE,
+  max_iter         = 1000,
+  Y_init           = mds_init,
+  pca              = FALSE
+)
+
+cat("t‑SNE complete. Output dimensions: ",
+    paste(dim(tsne_out$Y), collapse = " × "), "\n", sep = "")
+
+
+# ---- 4. Build plot data frame ----
+tsne_df <- tibble(
+  SampleID = rownames(as.matrix(bray_dist)),
+  tSNE1    = tsne_out$Y[, 1],
+  tSNE2    = tsne_out$Y[, 2]
+) %>%
+  left_join(meta_pcoa %>% rownames_to_column("SampleID"),
+            by = "SampleID")
+
+# Apply the same metadata cleaning and palette logic as the PCoA
+tsne_df <- tsne_df %>%
+  mutate(
+    plot_group = clean_metadata_level(.data[[plot_colour]])
+  )
+
+plot_palette_tsne <- make_safe_palette(
+  metadata_variable = plot_colour,
+  observed_values   = tsne_df$plot_group,
+  palette_list      = kefir_palettes
+)
+
+tsne_df$plot_group <- factor(tsne_df$plot_group,
+                             levels = names(plot_palette_tsne))
+
+
+# ---- 5. PERMANOVA using the same grouping variable ----
+# Ensure we use the filtered meta_pcoa (same rows as bray_dist)
+set.seed(123)
+permanova_res <- adonis2(
+  bray_dist ~ plot_group,
+  data = tsne_df,
+  permutations = 999
+)
+
+r2_val   <- round(permanova_res$R2[1], 3)
+p_val    <- permanova_res$`Pr(>F)`[1]
+pval_fmt <- ifelse(p_val < 0.001, "< 0.001", sprintf("%.3f", p_val))
+
+cat("PERMANOVA: R² = ", r2_val, ", p = ", pval_fmt, "\n", sep = "")
+
+
+# ---- 6. t‑SNE plot ----
+fig_tsne <- ggplot(tsne_df,
+                   aes(x = tSNE1, y = tSNE2, colour = plot_group)) +
+  geom_point(size = 2.5, alpha = 0.85) +
+  scale_colour_manual(
+    values = plot_palette_tsne,
+    name   = plot_colour,
+    drop   = FALSE
+  ) +
+  coord_fixed() +
+  labs(
+    title    = paste0("Bray‑Curtis"),
+    #subtitle = bquote(R^2 == .(r2_val) * ", " ~ italic(p) == .(pval_fmt)),
+    x        = "t-SNE1",
+    y        = "t-SNE2"
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    plot.title    = element_text(face = "bold", size = 12, hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, size = 10),
+    panel.grid    = element_line(colour = "grey94", linewidth = 0.3),
+    legend.position = "right"
+  )
+
+fig_tsne
+
+# ---- 7. Weighted‑average species overlay ----
+wa_scores_tsne <- wascores(tsne_out$Y, taxa_pcoa) %>%
+  as_tibble(rownames = "species") %>%
+  rename(tSNE1 = V1, tSNE2 = V2) %>%
+  mutate(
+    # Remove MetaPhlAn species prefix
+    species_label = gsub("^s__", "", species),
+
+    # Create display label: replace underscores with spaces
+    species_label_plot = gsub("_", " ", species_label)
+  )
+
+species_of_interest <- c(
+  "Lactococcus_lactis",
+  "Lactococcus_cremoris",
+  "Streptococcus_thermophilus",
+  "Lactobacillus_helveticus",
+  "Lactobacillus_kefiranofaciens",
+  "Lentilactobacillus_kefiri",
+  "Lentilactobacillus_parakefiri",
+  "Leuconostoc_mesenteroides",
+  "Saccharomyces_cerevisiae",
+  "Acetobacter_fabarum",
+  "Acetobacter_orientalis",
+  "Zymomonas_mobilis",
+  "Oenococcus_oeni",
+  "Bifidobacterium_aquikefiri"
+)
+
+wa_subset_tsne <- wa_scores_tsne %>%
+  filter(species_label %in% species_of_interest)
+
+cat("Species found and labelled in t‑SNE: ", nrow(wa_subset_tsne), " of ",
+    length(species_of_interest), "\n", sep = "")
+if (nrow(wa_subset_tsne) < length(species_of_interest)) {
+  cat("Not found: ",
+      paste(setdiff(species_of_interest, wa_subset_tsne$species_label),
+            collapse = ", "),
+      "\n", sep = "")
+}
+
+fig_tsne_species <- fig_tsne +
+  geom_label_repel(
+    data = wa_subset_tsne,
+    aes(x = tSNE1, y = tSNE2, label = species_label_plot),
+    inherit.aes   = FALSE,
+    colour        = "black",
+    fill          = grDevices::adjustcolor("white", alpha.f = 0.75),
+    fontface      = "bold.italic",
+    size          = 3.5,
+    label.size    = 0.25,
+    label.r       = unit(0.15, "lines"),
+    label.padding = unit(0.15, "lines"),
+    box.padding   = 0.25,
+    point.padding = 0.1,
+    segment.color = "grey98"
+  )
+
+fig_tsne_species
+
+```
+
+## Fig. 3A
+```{r}
+
+library(tidyverse)
+library(ComplexHeatmap)
+library(viridisLite)
+
+kefir_palettes <- list(
+  
+  Subtype = c(
+    "Water_kefir" = "steelblue",
+    "Milk_kefir"  = "#FFC857"
+  ),
+  
+  Liquid_OR_Grain = c(
+    "Liquid" = "#E4572E",
+    "Grain"  = "#A8C686"
+  ),
+  
+  Sugar_source = c(
+    "Brown"                   = "#D68C45",
+    "Mix"                     = "#FFC9B9",
+    "White"                   = "#FEFEE3",
+    "Lactose"                 = "#DBD56E",
+    "Lactose?_No_sugar_added" = "#120D31",
+    "NA"                      = "lightgrey"
+  ),
+  
+  Type_of_fermentation = c(
+    "Anaerobe" = "#6A041D",
+    "Aerobe"   = "#A7A5C6",
+    "NA"       = "lightgrey"
+  ),
+  
+  Timepoint = c(
+    "0"  = "#FEF0D9",
+    "2"  = "#FDBB84",
+    "4"  = "#FC8D59",
+    "8"  = "#E34A33",
+    "16" = "#B30000",
+    "24" = "#800000",
+    "48" = "#4B0000",
+    "NA" = "lightgrey"
+  ),
+  
+  Fermentation_duration = c(
+    "8"  = "#A1D99B",
+    "24" = "#41AB5D",
+    "48" = "#006D2C",
+    "72" = "#003311",
+    "NA" = "lightgrey"
+  ),
+  
+  Fermentation_cycle = c(
+    "1"  = "#66C2A5",
+    "2"  = "#FC8D62",
+    "NA" = "lightgrey"
+  ),
+  
+  Temperature = c(
+    "21" = "#5E4FA2",
+    "24" = "#9E0142"
+  ),
+  
+  Private_OR_Commercial = c(
+    "Private"    = "#A3D9FF",
+    "Commercial" = "#F2E94E",
+    "NA"         = "lightgrey"
+  ),
+  
+  Shipping_methods = c(
+    "Fresh" = "#B5C99A",
+    "Dried" = "#862B0D",
+    "NA"    = "lightgrey"
+  ),
+  
+  Geographical_origin = c(
+    "Ireland"                = "#3B6B4F",
+    "UK"                     = "#7A9D8C",
+    "Germany"                = "#D9A066",
+    "Spain"                  = "#C44536",
+    "Italy"                  = "#6A994E",
+    "Denmark"                = "#B5A1C4",
+    "France"                 = "#5B7FA2",
+    "Austria"                = "#A67C52",
+    "USA"                    = "#9B5D73",
+    "Indonesia"              = "#E6A176",
+    "Canada"                 = "#8C5B4B",
+    "Singapore"              = "#4D8C7A",
+    "Australia"              = "#C27E3A",
+    "Estonia"                = "#7A93A8",
+    "Malaysia"               = "#D68C7C",
+    "Norway"                 = "#5D7B93",
+    "South_Africa"           = "#8B5A4A",
+    "Belgium"                = "#A3A380",
+    "Colombia"               = "#B87B6E",
+    "Philippines"            = "#D4A373",
+    "HongKong_China"         = "#6D8B8A",
+    "China"                  = "#B54A4A",
+    "Greece"                 = "#5F8B9E",
+    "Israel"                 = "#C2A77D",
+    "Tunisia"                = "#9B6E55",
+    "Portugal"               = "#A66249",
+    "Taiwan"                 = "#6A8D73",
+    "New_Zealand"            = "#4F6D5C",
+    "Bosnia_and_Herzegovina" = "#8B7D6B",
+    "India"                  = "#CC8F5A",
+    "Russia"                 = "#7B6F8A",
+    "Croatia"                = "#5A8F8F",
+    "Sweden"                 = "#8B9A6B",
+    "NA"                     = "lightgrey"
+  )
+)
+
+s_metaKefir_log1p <- read.table("s_metaKefir_log1p.tsv",
+                      header       = TRUE,
+                      row.names    = 1,
+                      sep          = "\t",
+                      check.names  = FALSE,
+                      dec          = ".",
+                      comment.char = "",
+                      quote        = ""
+                      ) %>% as.data.frame() 
+
+dim(s_metaKefir_log1p)
+head(s_metaKefir_log1p)
+
+##=== 5.1 All ================= (adapted for kefir)
+
+# ----------------------------------------------------------------------
+# 1. Prepare data matrix (species only)
+# ----------------------------------------------------------------------
+
+# Identify species columns (starting with "s__") – same logic as in your Bray-Curtis code
+species_cols <- grep("^s__", colnames(s_metaKefir_log1p), value = TRUE)
+
+if (length(species_cols) == 0) {
+  stop("No species columns found. Expected columns starting with 's__'.")
+}
+
+# Transpose: rows = species, columns = samples
+s_metaKefir_heatmap <- t(as.matrix(s_metaKefir_log1p[, species_cols, drop = FALSE]))
+
+# Remove the taxonomy prefix from displayed row labels
+rownames(s_metaKefir_heatmap) <- rownames(s_metaKefir_heatmap) |>
+  sub("^s__", "", x = _) |>
+  gsub("_", " ", x = _)
+
+# ----------------------------------------------------------------------
+# 2. Choose viridis palette (uncomment your favourite)
+# ----------------------------------------------------------------------
+# viridis_palette <- viridis(100)        # Default viridis
+viridis_palette <- magma(100)          # Magma
+# viridis_palette <- plasma(100)         # Plasma
+# viridis_palette <- inferno(100)        # Inferno
+# viridis_palette <- cividis(100)          # Cividis (colorblind friendly)
+
+# ----------------------------------------------------------------------
+# 3. Helper to convert missing values to "NA" for consistent colouring
+# ----------------------------------------------------------------------
+clean_metadata_level <- function(x) {
+  x <- as.character(x)
+  x[is.na(x) | x == "" | x == "NaN" | x == "nan" | x == "<NA>"] <- "NA"
+  x
+}
+
+# Apply to each annotation column (optional, but recommended)
+s_metaKefir_log1p$Subtype_clean            <- clean_metadata_level(s_metaKefir_log1p$Subtype)
+s_metaKefir_log1p$Liquid_OR_Grain_clean    <- clean_metadata_level(s_metaKefir_log1p$Liquid_OR_Grain)
+s_metaKefir_log1p$Sugar_source_clean       <- clean_metadata_level(s_metaKefir_log1p$Sugar_source)
+s_metaKefir_log1p$Type_of_fermentation_clean <- clean_metadata_level(s_metaKefir_log1p$Type_of_fermentation)
+s_metaKefir_log1p$Timepoint_clean          <- clean_metadata_level(s_metaKefir_log1p$Timepoint)
+s_metaKefir_log1p$Fermentation_duration_clean <- clean_metadata_level(s_metaKefir_log1p$Fermentation_duration)
+s_metaKefir_log1p$Fermentation_cycle_clean <- clean_metadata_level(s_metaKefir_log1p$Fermentation_cycle)
+s_metaKefir_log1p$Temperature_clean        <- clean_metadata_level(s_metaKefir_log1p$Temperature)
+s_metaKefir_log1p$Private_OR_Commercial_clean <- clean_metadata_level(s_metaKefir_log1p$Private_OR_Commercial)
+s_metaKefir_log1p$Shipping_methods_clean   <- clean_metadata_level(s_metaKefir_log1p$Shipping_methods)
+s_metaKefir_log1p$Geographical_origin_clean <- clean_metadata_level(s_metaKefir_log1p$Geographical_origin)
+
+# ----------------------------------------------------------------------
+# 4. Define colour palettes (reuse kefir_palettes from your earlier script)
+# ----------------------------------------------------------------------
+# Make sure kefir_palettes is already defined in your environment.
+# If not, paste the definition from your Bray-Curtis code here.
+
+# ----------------------------------------------------------------------
+# 5. Build heatmap annotation
+# ----------------------------------------------------------------------
+ha <- HeatmapAnnotation(
+  Subtype            = s_metaKefir_log1p$Subtype_clean,
+  #Liquid_OR_Grain    = s_metaKefir_log1p$Liquid_OR_Grain_clean,
+  #Sugar_source       = s_metaKefir_log1p$Sugar_source_clean,
+  #Type_of_fermentation = s_metaKefir_log1p$Type_of_fermentation_clean,
+  #Timepoint          = s_metaKefir_log1p$Timepoint_clean,
+  #Fermentation_duration = s_metaKefir_log1p$Fermentation_duration_clean,
+  #Fermentation_cycle = s_metaKefir_log1p$Fermentation_cycle_clean,
+  #Temperature        = s_metaKefir_log1p$Temperature_clean,
+  #Private_OR_Commercial = s_metaKefir_log1p$Private_OR_Commercial_clean,
+  #Shipping_methods   = s_metaKefir_log1p$Shipping_methods_clean,
+  #Geographical_origin = s_metaKefir_log1p$Geographical_origin_clean,
+  
+  # Apply the colour scheme from your kefir_palettes
+  col = kefir_palettes,
+  
+  annotation_name_gp = gpar(fontsize = 10),
+  simple_anno_size = unit(4, "mm")
+)
+
+# ----------------------------------------------------------------------
+# 6. Create heatmap
+# ----------------------------------------------------------------------
+all_heatmap <- Heatmap(
+  matrix = s_metaKefir_heatmap,
+  name = "Log1p abundance\nof microbial species",
+  col = viridis_palette,
+  na_col = "grey90",
+  
+  top_annotation = ha,
+  
+  cluster_rows = TRUE,
+  cluster_columns = TRUE,
+  clustering_distance_rows = "euclidean",
+  clustering_method_rows = "complete",
+  show_row_dend = TRUE,
+  row_dend_reorder = TRUE,
+  
+  show_column_names = FALSE,
+  border = TRUE,
+  row_gap = unit(2, "mm"),
+  column_gap = unit(1, "mm"),
+  
+  row_names_gp = gpar(fontsize = 10, fontface = "italic"),
+  column_names_gp = gpar(fontsize = 10),
+  row_title_gp = gpar(fontsize = 12),
+  
+  heatmap_legend_param = list(
+    title_gp = gpar(fontsize = 12),
+    labels_gp = gpar(fontsize = 10),
+    legend_height = unit(4, "cm"),
+    direction = "vertical",
+    border = "black"
+  )
+)
+
+# Display
+all_heatmap
+
+##=== 5.2 All (matrix split by Subtype) =================
+
+# ----------------------------------------------------------------------
+# 1. Prepare the data matrix (species only)
+# ----------------------------------------------------------------------
+species_cols <- grep("^s__", colnames(s_metaKefir_log1p), value = TRUE)
+
+if (length(species_cols) == 0) {
+  stop("No species columns found. Expected columns starting with 's__'.")
+}
+
+# Transpose: rows = species, columns = samples
+s_metaKefir_heatmap <- t(as.matrix(s_metaKefir_log1p[, species_cols, drop = FALSE]))
+
+# Remove the taxonomy prefix from displayed row labels
+rownames(s_metaKefir_heatmap) <- rownames(s_metaKefir_heatmap) |>
+  sub("^s__", "", x = _) |>
+  gsub("_", " ", x = _)
+
+# ----------------------------------------------------------------------
+# 2. Ensure splitting variable is clean (no NA surprises)
+# ----------------------------------------------------------------------
+# Use the same cleaning function as before
+clean_metadata_level <- function(x) {
+  x <- as.character(x)
+  x[is.na(x) | x == "" | x == "NaN" | x == "nan" | x == "<NA>"] <- "NA"
+  x
+}
+
+split_variable <- clean_metadata_level(s_metaKefir_log1p$Subtype)
+
+# Optional: check levels
+cat("Split levels: ", paste(unique(split_variable), collapse = ", "), "\n")
+
+# ----------------------------------------------------------------------
+# 3. Reuse the same annotation object (ha) from previous heatmap
+#    (Make sure 'ha' is already defined, or redefine it here)
+# ----------------------------------------------------------------------
+# If ha is not yet in your environment, copy its definition from the 
+# previous heatmap code (section 5.1). It uses kefir_palettes and cleaned columns.
+
+# ----------------------------------------------------------------------
+# 4. Choose viridis palette (uncomment your favourite)
+# ----------------------------------------------------------------------
+# viridis_palette <- viridis(100)
+viridis_palette <- magma(100)
+# viridis_palette <- plasma(100)
+# viridis_palette <- inferno(100)
+# viridis_palette <- cividis(100)
+
+# ----------------------------------------------------------------------
+# 5. Create split heatmap
+# ----------------------------------------------------------------------
+all_heatmap_matrix_split <- Heatmap(
+  matrix = s_metaKefir_heatmap,
+  name = "Log1p abundance\nof microbial species",
+  col = viridis_palette,
+  na_col = "grey90",
+  
+  top_annotation = ha,               # same annotation as full heatmap
+  
+  column_split = split_variable,     # split by Subtype
+  # column_title = c("Grain", "Liquid"),  # uncomment if you know the exact order
+  column_title_gp = gpar(fontsize = 12, fontface = "bold"),
+  
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,           # columns not clustered within splits
+  clustering_distance_rows = "euclidean",
+  clustering_method_rows = "complete",
+  show_row_dend = FALSE,
+  row_dend_reorder = TRUE,
+  cluster_column_slices = FALSE,     # don't reorder the split groups
+  
+  show_column_names = FALSE,
+  border = TRUE,
+  row_gap = unit(2, "mm"),
+  column_gap = unit(1, "mm"),
+  
+  row_names_gp = gpar(fontsize = 10, fontface = "italic"),
+  column_names_gp = gpar(fontsize = 10),
+  row_title_gp = gpar(fontsize = 12),
+  
+  heatmap_legend_param = list(
+    title_gp = gpar(fontsize = 12),
+    labels_gp = gpar(fontsize = 10),
+    legend_height = unit(4, "cm"),
+    direction = "vertical",
+    border = "black"
+  )
+)
+
+# Display
+all_heatmap_matrix_split
+```
+
+## Fig. 3B
+```{r}
+
+```
+
+## Fig. 3C
+```{r}
+
+```
+
+## Fig. 4A
+```{r}
+
+```
+
+## Fig. 4B
+```{r}
+
+```
+
+## Fig. 4C
+```{r}
+
+```
+
+## Fig. 5A
+```{r}
+
+```
+
+## Fig. 5B
+```{r}
+
+```
+
+## Fig. 5C
+```{r}
+
+```
+
+## Fig. 6A
+```{r}
+
+```
+
+## Fig. 6B
+```{r}
+
+```
+
+## Fig. 7A
+```{r}
+
+```
+
+## Fig. 7B
+```{r}
+
+```
+
+## Fig. 7C
+```{r}
+
+```
+
+## Fig. 8A
+```{r}
+
+```
+
+## Fig. 8B
+```{r}
+
+```
+
+## Fig. 9A
+```{r}
+
+```
+
+## Fig. 9B
+```{r}
+
+```
+
+## Fig. 9C
+```{r}
+
+```
+
+## Supplemantary Fig. 1A
+```{r}
+
+```
+
+## Supplemantary Fig. 1B
+```{r}
+
+```
+
+## Supplemantary Fig. 2A
+```{r}
+
+```
+
+## Supplemantary Fig. 2B
+```{r}
+
+```
+
+## Supplemantary Fig. 2C
+```{r}
+
+```
+
+## Supplemantary Fig. 2D
+```{r}
+
+```
+
+## Supplemantary Fig. 2E
+```{r}
+
+```
+
+## Supplemantary Fig. 2F
+```{r}
+
+```
+
+## Supplemantary Fig. 2G
+```{r}
+
+```
+
+## Supplemantary Fig. 2H
+```{r}
+
+```
+
+## Fig. N
+```{r}
+
+```
+
+## Fig. N
+```{r}
+
+```
+
+## Fig. N
+```{r}
+
+```
+
+## Fig. N
+```{r}
+
+```
+
+## Fig. N
+```{r}
+
+```
