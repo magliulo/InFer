@@ -1,8 +1,8 @@
 # InFer
-Repository of Bash, Python, and R scripts used within InFer project. This repository contains the analysis code and source data accompanying *Kefir concepts – in depth characterisation of the core microbiomes and functional potential of milk and water kefir microbiomes*.
+Repository of Bash, Python, and R scripts used within InFer project. This repository contains the analysis code and source data from the paper "*Kefir concepts – in depth characterisation of the core microbiomes and functional potential of milk and water kefir microbiomes*".
 
 
-## Repository contents
+## 1. Repository contents
 
 | Directory        | Contents                                                         |
 |------------------|------------------------------------------------------------------|
@@ -10,15 +10,19 @@ Repository of Bash, Python, and R scripts used within InFer project. This reposi
 | [`data/`](data/) | Source data tables used to reproduce selected manuscript figures |
 
 
-## Reproducibility
+## 2. Reproducibility
 
-[`SourceData.qmd`](https://github.com/magliulo/InFer/blob/main/code/R/SourceData.qmd) contains the plotting code for main and supplementary figures. Its table of contents follows the manuscript figure numbering, and each section identifies the input files used for that panel.
+[`SourceData.qmd`](code/R/SourceData.qmd) contains the plotting code for main and supplementary figures. Its table of contents follows the manuscript figure numbering, and each section identifies the input files used for that panel.
 
-The report can be:
-a) reviewed and explored as stand-alone .HTML file (click here to download)
-b) rendered as report directly from R, by downloading the repository, preserving its directory structure, and installing R and RStudio, Quarto, and the R packages used in the document. Open `SourceData.qmd` in RStudio and select **Render**, or run the following command from the directory containing the document.
 
-    quarto render SourceData.qmd
+### 2.1 View the rendered report
+
+[Download `SourceData.html`](code/R/SourceData.html) and open it in a web browser to explore the plotting code and their figures.
+
+
+### 2.2 Render the report locally
+
+Download or clone the repository and preserve its directory structure. Install R (and RStudio), Quarto, and the R packages used in the document. In RStudio, open `code/R/SourceData.qmd` and select **Render** to generate the full report. To reproduce a single panel of a figure, run the setup chunks and any earlier chunks it depends on, then run the chunk for that panel.
 
 
 ## License
