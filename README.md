@@ -22,7 +22,7 @@ Repository of Bash, Python, and R scripts used within InFer project. This reposi
 
 ### 2.2 Render the report locally
 
-Download or clone the repository and preserve its directory structure. Install R (and RStudio), Quarto, and the R packages used in the document. In RStudio, open `code/R/SourceData.qmd` and select **Render** to generate the full report. To reproduce a single panel of a figure, run the setup chunks and any earlier chunks it depends on, then run the chunk for that panel.
+[Download](https://github.com/magliulo/InFer/archive/refs/heads/main.zip) or [clone](https://github.com/magliulo/InFer.git) the repository and preserve its directory structure. Install R **HERE ADD THE VERSION OF R AND REFER TO SESSIONINFO()**, RStudio, Quarto, and the R packages used in the document. In RStudio, open `code/R/SourceData.qmd` and select **Render** to generate the full report. To reproduce a single panel of a figure, run the setup chunks and any earlier chunks it depends on, then run the chunk for that panel.
 
 
 ## License
