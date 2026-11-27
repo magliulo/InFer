@@ -48,7 +48,7 @@ The [InFer repository](https://github.com/magliulo/InFer) contains the Bash, Pyt
 ### Reproducing the figures
 
 1. Download the repository and retain its directory structure. The figure chunks read their input files from `../../data/`, relative to the Quarto document.
-2. Open `SourceData.qmd` in RStudio with R, Quarto, and the R packages used in the document installed. Please, refer to the [R and libraries versions](##R and libraries versions) paragraph to check the R session information.
+2. Open `SourceData.qmd` in RStudio with R, Quarto, and the R packages used in the document installed. Please, refer to the [R and libraries versions](#r-and-libraries-versions) paragraph to check the R session information.
 3. Select **Render** to generate the HTML report. From a terminal opened in the directory containing the document, the equivalent command is `quarto render SourceData.qmd`.
 
 Use the table of contents to navigate directly to a figure. Expand its code block to see the input filenames, data preparation, and plotting commands. To run a single figure - relevant for those which don't perfectly fit in the .HTML - execute the initial setup chunk first to load the packages and define the shared colour palettes.
