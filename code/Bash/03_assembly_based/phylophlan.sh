@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# 3. Assembly-based
-
-## 3.7 PhyloPhlAn
-
 phylophlan_write_default_configs.sh /path/to/configs
 
 phylophlan \

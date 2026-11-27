@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# 3. Assembly-based
-
-## 3.8 Prokka functional annotation
-
 prokka \
     --addgenes \
     --compliant \

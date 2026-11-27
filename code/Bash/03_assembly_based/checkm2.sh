@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# 3. Assembly-based
-
-## 3.4 CheckM2
-
 checkm2 predict \
     --input /path/to/MAGs \
     -x fa \

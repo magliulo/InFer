@@ -1,16 +1,10 @@
 #!/bin/bash
 
-# 3. Assembly-based
-
-## 3.2 Bowtie2
-
-### 3.2.1 Bowtie2 index
 bowtie2-build \
     --threads 20 \
     /path/to/SAMPLE_ID_contigs.fa \
     /path/to/bowtie2_index/SAMPLE_ID
 
-### 3.2.2 Bowtie2 mapping
 bowtie2 \
     -x /path/to/bowtie2_index/SAMPLE_ID \
     -1 SAMPLE_ID_R1.fastq.bz2 \
@@ -20,7 +14,6 @@ bowtie2 \
     --very-sensitive-local \
     --no-unal
 
-### 3.2.3 SAM to sorted BAM
 samtools view \
     -b \
     -@ 20 \

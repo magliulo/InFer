@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# 3. Assembly-based
-
-## 3.1 MEGAHIT
-
 megahit \
     -1 SAMPLE_ID_R1.fastq.bz2 \
     -2 SAMPLE_ID_R2.fastq.bz2 \

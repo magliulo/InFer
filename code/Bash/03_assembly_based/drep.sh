@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# 3. Assembly-based
-
-## 3.6 dRep dereplication
-
 dRep dereplicate /path/to/drep_output \
     --processors 20 \
     --genomes /path/to/bins_path.txt \
