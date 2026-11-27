@@ -1,16 +1,13 @@
 #!/bin/bash
 
-# 2. Assembly-free
-
-## 2.1 MetaPhlAn
 metaphlan SAMPLE_ID_R1.fastq.bz2,SAMPLE_ID_R2.fastq.bz2 \
     --input_type fastq \
-    --bowtie2db /path/to/db_folder \
-    --index mpa_vOct22_CHOCOPhlAnSGB_202403 \
-    --output_file SAMPLE_ID_profile.txt \
+    --db_dir /path/to/db_folder \
+    --index mpa_vJan25_CHOCOPhlAnSGB_202503 \
+    --output_file SampleID_mpa_vOct2025.txt \
     --nproc 20 \
-    --add_viruses \
-    --unclassified_estimation \
-    --bowtie2out SAMPLE_ID.bowtie2.bz2 \
-    -s SAMPLE_ID.sam.bz2 \
-    --force
+    --mapout SampleID.mapout.txt \
+    --force \
+    --profile_vsc \
+    -s SampleID.sam.bz2 \
+    --vsc_out SampleID_vsc.txt
