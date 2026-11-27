@@ -1,0 +1,15 @@
+species,tSNE1,tSNE2,species_label,species_label_plot
+s__Lactococcus_cremoris,14.95698994,14.54408876,Lactococcus_cremoris,Lactococcus cremoris
+s__Lactococcus_lactis,21.13534182,-4.751294824,Lactococcus_lactis,Lactococcus lactis
+s__Lactobacillus_helveticus,10.27193998,-3.922886514,Lactobacillus_helveticus,Lactobacillus helveticus
+s__Leuconostoc_mesenteroides,4.499449215,1.768961597,Leuconostoc_mesenteroides,Leuconostoc mesenteroides
+s__Lactobacillus_kefiranofaciens,15.37384914,5.011645581,Lactobacillus_kefiranofaciens,Lactobacillus kefiranofaciens
+s__Acetobacter_fabarum,-1.510013298,-4.746150092,Acetobacter_fabarum,Acetobacter fabarum
+s__Lentilactobacillus_kefiri,16.89781316,2.54078227,Lentilactobacillus_kefiri,Lentilactobacillus kefiri
+s__Saccharomyces_cerevisiae,-13.90054331,3.651573022,Saccharomyces_cerevisiae,Saccharomyces cerevisiae
+s__Lentilactobacillus_parakefiri,15.56678716,8.085717195,Lentilactobacillus_parakefiri,Lentilactobacillus parakefiri
+s__Acetobacter_orientalis,-8.024135955,-5.692741129,Acetobacter_orientalis,Acetobacter orientalis
+s__Streptococcus_thermophilus,9.150140358,-9.04782238,Streptococcus_thermophilus,Streptococcus thermophilus
+s__Zymomonas_mobilis,-30.53556583,-1.08231881,Zymomonas_mobilis,Zymomonas mobilis
+s__Bifidobacterium_aquikefiri,-16.85419615,-7.734563789,Bifidobacterium_aquikefiri,Bifidobacterium aquikefiri
+s__Oenococcus_oeni,-10.63986504,-7.09400169,Oenococcus_oeni,Oenococcus oeni

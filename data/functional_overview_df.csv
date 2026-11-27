@@ -1,0 +1,61 @@
+panel,category_order,category,group_order,group,colour,pct,n_hits
+bubble,3,Antimicrobial resistance,2,Milk_kefir,#FFC857,0.402113459399333,NA
+bubble,2,Bile salt hydrolases,2,Milk_kefir,#FFC857,19.1176470588235,NA
+bubble,4,Exopolysaccharides,2,Milk_kefir,#FFC857,4.2156862745098,NA
+bubble,9,Flavors,2,Milk_kefir,#FFC857,23.7849343687177,NA
+bubble,5,Glutathione,2,Milk_kefir,#FFC857,15.0452488687783,NA
+bubble,6,Lipases,2,Milk_kefir,#FFC857,2.39940569249022,NA
+bubble,7,Neuroactive molecules,2,Milk_kefir,#FFC857,5.16376201923077,NA
+bubble,10,Proteases,2,Milk_kefir,#FFC857,2.87483206891102,NA
+bubble,1,Virulence factors,2,Milk_kefir,#FFC857,0.303353984191412,NA
+bubble,8,Vitamins,2,Milk_kefir,#FFC857,6.47321044388221,NA
+bubble,3,Antimicrobial resistance,1,Water_kefir,steelblue,0.0309903810624933,NA
+bubble,2,Bile salt hydrolases,1,Water_kefir,steelblue,18.2509505703422,NA
+bubble,4,Exopolysaccharides,1,Water_kefir,steelblue,3.3244980825626,NA
+bubble,9,Flavors,1,Water_kefir,steelblue,22.5720403571169,NA
+bubble,5,Glutathione,1,Water_kefir,steelblue,10.1127965772073,NA
+bubble,6,Lipases,1,Water_kefir,steelblue,2.5770979701876,NA
+bubble,7,Neuroactive molecules,1,Water_kefir,steelblue,5.00352538275584,NA
+bubble,10,Proteases,1,Water_kefir,steelblue,3.56229064573292,NA
+bubble,1,Virulence factors,1,Water_kefir,steelblue,0,NA
+bubble,8,Vitamins,1,Water_kefir,steelblue,6.64581617845261,NA
+bar,3,Antimicrobial resistance,3,Actinobacteria,#2C231E,NA,107
+bar,3,Antimicrobial resistance,4,Bacteroidota,#FFD92F,NA,2
+bar,3,Antimicrobial resistance,1,Firmicutes,#A03428,NA,303
+bar,3,Antimicrobial resistance,2,Proteobacteria,#8E4D5D,NA,34
+bar,2,Bile salt hydrolases,3,Actinobacteria,#2C231E,NA,0
+bar,2,Bile salt hydrolases,4,Bacteroidota,#FFD92F,NA,2
+bar,2,Bile salt hydrolases,1,Firmicutes,#A03428,NA,165
+bar,2,Bile salt hydrolases,2,Proteobacteria,#8E4D5D,NA,45
+bar,4,Exopolysaccharides,3,Actinobacteria,#2C231E,NA,39
+bar,4,Exopolysaccharides,4,Bacteroidota,#FFD92F,NA,3
+bar,4,Exopolysaccharides,1,Firmicutes,#A03428,NA,308
+bar,4,Exopolysaccharides,2,Proteobacteria,#8E4D5D,NA,615
+bar,9,Flavors,3,Actinobacteria,#2C231E,NA,184
+bar,9,Flavors,4,Bacteroidota,#FFD92F,NA,11
+bar,9,Flavors,1,Firmicutes,#A03428,NA,2128
+bar,9,Flavors,2,Proteobacteria,#8E4D5D,NA,846
+bar,5,Glutathione,3,Actinobacteria,#2C231E,NA,0
+bar,5,Glutathione,4,Bacteroidota,#FFD92F,NA,0
+bar,5,Glutathione,1,Firmicutes,#A03428,NA,1009
+bar,5,Glutathione,2,Proteobacteria,#8E4D5D,NA,54
+bar,6,Lipases,3,Actinobacteria,#2C231E,NA,161
+bar,6,Lipases,4,Bacteroidota,#FFD92F,NA,12
+bar,6,Lipases,1,Firmicutes,#A03428,NA,1615
+bar,6,Lipases,2,Proteobacteria,#8E4D5D,NA,803
+bar,7,Neuroactive molecules,3,Actinobacteria,#2C231E,NA,186
+bar,7,Neuroactive molecules,4,Bacteroidota,#FFD92F,NA,13
+bar,7,Neuroactive molecules,1,Firmicutes,#A03428,NA,2006
+bar,7,Neuroactive molecules,2,Proteobacteria,#8E4D5D,NA,827
+bar,10,Proteases,3,Actinobacteria,#2C231E,NA,196
+bar,10,Proteases,4,Bacteroidota,#FFD92F,NA,14
+bar,10,Proteases,1,Firmicutes,#A03428,NA,2213
+bar,10,Proteases,2,Proteobacteria,#8E4D5D,NA,855
+bar,1,Virulence factors,3,Actinobacteria,#2C231E,NA,0
+bar,1,Virulence factors,4,Bacteroidota,#FFD92F,NA,0
+bar,1,Virulence factors,1,Firmicutes,#A03428,NA,9
+bar,1,Virulence factors,2,Proteobacteria,#8E4D5D,NA,51
+bar,8,Vitamins,3,Actinobacteria,#2C231E,NA,185
+bar,8,Vitamins,4,Bacteroidota,#FFD92F,NA,15
+bar,8,Vitamins,1,Firmicutes,#A03428,NA,2116
+bar,8,Vitamins,2,Proteobacteria,#8E4D5D,NA,845

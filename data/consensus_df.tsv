@@ -1,0 +1,56 @@
+Feature	LEfSe	MaAsLin3	SHAP	n_methods
+Acetobacter SGB92972	TRUE	TRUE	TRUE	3
+Acetobacter SGB99392	TRUE	TRUE	TRUE	3
+Acetobacter aceti	TRUE	TRUE	TRUE	3
+Acetobacter fabarum	TRUE	TRUE	TRUE	3
+Acetobacter indonesiensis	TRUE	TRUE	TRUE	3
+Acetobacter lovaniensis	TRUE	TRUE	TRUE	3
+Acetobacter malorum	TRUE	TRUE	TRUE	3
+Acetobacter okinawensis	TRUE	TRUE	TRUE	3
+Acetobacter orientalis	TRUE	TRUE	TRUE	3
+Acetobacter papayae	TRUE	TRUE	TRUE	3
+Acetobacter persici	TRUE	TRUE	TRUE	3
+Acetobacter syzygii	TRUE	TRUE	TRUE	3
+Acinetobacter guillouiae	TRUE	TRUE	TRUE	3
+Bifidobacterium aquikefiri	TRUE	TRUE	TRUE	3
+Bifidobacterium psychraerophilum	TRUE	TRUE	TRUE	3
+GGB71120 SGB96842	TRUE	TRUE	TRUE	3
+GGB71631 SGB98380	TRUE	TRUE	TRUE	3
+Gluconacetobacter dulcium	TRUE	TRUE	TRUE	3
+Gluconobacter albidus	TRUE	TRUE	TRUE	3
+Gluconobacter cerinus	TRUE	TRUE	TRUE	3
+Gluconobacter japonicus	TRUE	TRUE	TRUE	3
+Gluconobacter oxydans	TRUE	TRUE	TRUE	3
+Gluconobacter potus	TRUE	TRUE	TRUE	3
+Gluconobacter sp Gdi	TRUE	TRUE	TRUE	3
+Komagataeibacter saccharivorans	TRUE	TRUE	TRUE	3
+Lacticaseibacillus paracasei	TRUE	TRUE	TRUE	3
+Lactobacillus helveticus	TRUE	TRUE	TRUE	3
+Lactobacillus kefiranofaciens	TRUE	TRUE	TRUE	3
+Lactobacillus sp UCMA15818	TRUE	TRUE	TRUE	3
+Lactococcus cremoris	TRUE	TRUE	TRUE	3
+Lactococcus lactis	TRUE	TRUE	TRUE	3
+Lactococcus raffinolactis	TRUE	TRUE	TRUE	3
+Lentilactobacillus hilgardii	TRUE	TRUE	TRUE	3
+Lentilactobacillus kefiri	TRUE	TRUE	TRUE	3
+Lentilactobacillus parakefiri	TRUE	TRUE	TRUE	3
+Leuconostoc mesenteroides	TRUE	TRUE	TRUE	3
+Leuconostoc pseudomesenteroides	TRUE	TRUE	TRUE	3
+Liquorilactobacillus ghanensis	TRUE	TRUE	TRUE	3
+Liquorilactobacillus hordei	TRUE	TRUE	TRUE	3
+Liquorilactobacillus mali	TRUE	TRUE	TRUE	3
+Liquorilactobacillus nagelii	TRUE	TRUE	TRUE	3
+Liquorilactobacillus satsumensis	TRUE	TRUE	TRUE	3
+Obesumbacterium proteus	TRUE	TRUE	TRUE	3
+Oenococcus kitaharae	TRUE	TRUE	TRUE	3
+Oenococcus oeni	TRUE	TRUE	TRUE	3
+Pichia membranifaciens group 1	TRUE	TRUE	TRUE	3
+Pichia membranifaciens group 2	TRUE	TRUE	TRUE	3
+Pseudomonas helleri	TRUE	TRUE	TRUE	3
+Saccharomyces cerevisiae	TRUE	TRUE	TRUE	3
+Schleiferilactobacillus harbinensis	TRUE	TRUE	TRUE	3
+Streptococcus thermophilus	TRUE	TRUE	TRUE	3
+Zymomonas mobilis	TRUE	TRUE	TRUE	3
+Lentilactobacillus diolivorans	TRUE	FALSE	TRUE	2
+Leuconostoc falkenbergense	FALSE	TRUE	TRUE	2
+Pichia fermentans	TRUE	FALSE	TRUE	2
